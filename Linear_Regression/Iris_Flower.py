@@ -79,9 +79,9 @@ def predictions(X_train, X_validation, Y_train, Y_validation):
     model.fit(X_train, Y_train)
     predictions = model.predict(X_validation)
     # Evaluate predictions
-    print(accuracy_score(Y_validation, predictions))
-    print(confusion_matrix(Y_validation, predictions))
-    print(classification_report(Y_validation, predictions))
+    print(f"Accuracy: {accuracy_score(Y_validation, predictions)}\n")
+    print(f"Confusion Matrix: \n{confusion_matrix(Y_validation, predictions)}\n")
+    print(f"Classification Report: \n{classification_report(Y_validation, predictions)}")
 
 # Load dataset
 names = ['sepal-length', 'sepal-width', 'petal-length', 'petal-width', 'class']

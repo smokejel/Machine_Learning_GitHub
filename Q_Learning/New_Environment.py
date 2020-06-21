@@ -9,12 +9,12 @@ import time
 style.use("ggplot")
 
 SIZE = 10
-HM_EPISODES = 25000
+HM_EPISODES = 50000
 MOVE_PENALTY = 1
-ENERMY_PENALTY = 300
+ENEMY_PENALTY = 300
 FOOD_REWARD = 25
 EPS_DECAY = 0.9998
-SHOW_EVERY = 1
+SHOW_EVERY = 10000
 LEARNING_RATE = 0.1
 DISCOUNT = 0.95
 
@@ -28,8 +28,9 @@ d = {1: (255, 175, 0),
      2: (0, 255, 0),
      3: (0, 0, 255)}
 
-epsilon = 0.0
-start_q_table = "qtable-1592450853.pickel"
+epsilon = 0.9
+# start_q_table = "qtable-1592590035.pickel"
+start_q_table = None
 
 class Blob:
     def __init__(self):
@@ -75,7 +76,7 @@ if start_q_table is None:
         for y1 in range(-SIZE + 1, SIZE):
             for x2 in range(-SIZE + 1, SIZE):
                 for y2 in range(-SIZE + 1, SIZE):
-                    q_table[((x1, y1), (x2, y2))] = [np.random.uniform(-5, 0) for i in range(4)]
+                    q_table[((x1, y1), (x2, y2))] = [np.random.uniform(-SIZE/2, 0) for i in range(4)]
 else:
     with open(start_q_table, "rb") as f:
         q_table = pickle.load(f)
@@ -104,7 +105,7 @@ for episode in range(HM_EPISODES):
         player.action(action)
 
         if player.x == enemy.x and player.y == enemy.y:
-            reward = -ENERMY_PENALTY
+            reward = -ENEMY_PENALTY
         elif player.x == food.x and player.y == food.y:
             reward = FOOD_REWARD
         else:
@@ -116,8 +117,8 @@ for episode in range(HM_EPISODES):
 
         if reward == FOOD_REWARD:
             new_q = FOOD_REWARD
-        elif reward == -ENERMY_PENALTY:
-            new_q = -ENERMY_PENALTY
+        elif reward == -ENEMY_PENALTY:
+            new_q = -ENEMY_PENALTY
         else:
             new_q = (1 - LEARNING_RATE) * current_q + LEARNING_RATE * (reward + DISCOUNT * max_future_q)
 
@@ -130,16 +131,16 @@ for episode in range(HM_EPISODES):
             env[enemy.y, enemy.x] = d[ENEMY_N]
 
             img = Image.fromarray(env, "RGB")
-            img = img.resize((300, 300))
+            img = img.resize((400, 400))
             cv2.imshow("", np.array(img))
-            if reward == FOOD_REWARD or reward == ENERMY_PENALTY:
+            if reward == FOOD_REWARD or reward == ENEMY_PENALTY:
                 if cv2.waitKey(500) & 0xFF == ord("q"):
                     break
             else:
                 if cv2.waitKey(1) & 0xFF == ord("q"):
                     break
         episode_reward += reward
-        if reward == FOOD_REWARD or reward == -ENERMY_PENALTY:
+        if reward == FOOD_REWARD or reward == -ENEMY_PENALTY:
             break
     episode_rewards.append(episode_reward)
     epsilon *= EPS_DECAY
